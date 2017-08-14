@@ -122,30 +122,35 @@ func (t *Parser) ParsePkg(pkg *ast.Package) (objs map[string]*ast.Object, err er
 func (t *Parser) parseTypeStr(oPkg *ast.Package, typeStr string) (pkg *ast.Package,
 	obj *ast.Object, err error) {
 	var objs map[string]*ast.Object
+	var pkgName, typeTitle string
 	var ok bool
 
-	if !strings.Contains(typeStr, ".") {
+	strs := strings.Split(typeStr, ".")
+	l := len(strs)
+	if l == 0 || l > 2 {
+		err = errors.Errorf("invalid type str %s", typeStr)
+		return
+	}
+	if l == 1 {
+		pkgName = oPkg.Name
+		typeTitle = strs[0]
+	} else {
+		pkgName = strs[0]
+		typeTitle = strs[1]
+	}
+	if pkgName == oPkg.Name {
 		pkg = oPkg
 		objs, err = t.ParsePkg(pkg)
 		if err != nil {
 			err = errors.WithStack(err)
 			return
 		}
-		if obj, ok = objs[typeStr]; !ok {
-			err = errors.Errorf("%s not found in package %s", typeStr, pkg.Name)
+		if obj, ok = objs[typeTitle]; !ok {
+			err = errors.Errorf("%s not found in package %s", typeTitle, pkg.Name)
 			return
 		}
 		return
 	}
-
-	strs := strings.Split(typeStr, ".")
-	if len(strs) != 2 {
-		err = errors.Errorf("invalid type str %s", typeStr)
-		return
-	}
-	pkgName := strs[0]
-	typeTitle := strs[1]
-
 	var p *ast.Package
 	for _, file := range oPkg.Files {
 		for _, ispec := range file.Imports {
