@@ -44,6 +44,10 @@ func main() {
 		if c.NArg() > 0 {
 			opts.TypeExpr = c.Args().Get(0)
 		}
+		if opts.TypeExpr == "" {
+			cli.ShowAppHelp(c)
+			return
+		}
 
 		wd, err := os.Getwd()
 		if err != nil {
