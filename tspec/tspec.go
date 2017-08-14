@@ -16,7 +16,6 @@ import (
 // Parser ...
 type Parser struct {
 	fset       *token.FileSet
-	fileMap    map[string]*ast.File
 	dirPkgMap  map[string]*ast.Package
 	pkgObjsMap map[*ast.Package]map[string]*ast.Object
 	typeMap    map[string]*spec.Schema
@@ -26,26 +25,9 @@ type Parser struct {
 func NewParser() (parser *Parser) {
 	parser = new(Parser)
 	parser.fset = token.NewFileSet()
-	parser.fileMap = make(map[string]*ast.File)
 	parser.dirPkgMap = make(map[string]*ast.Package)
 	parser.pkgObjsMap = make(map[*ast.Package]map[string]*ast.Object)
 	parser.typeMap = make(map[string]*spec.Schema)
-	return
-}
-
-// ParseFile ...
-func (t *Parser) ParseFile(filePath string) (f *ast.File, err error) {
-	if tmpF, ok := t.fileMap[filePath]; ok {
-		f = tmpF
-		return
-	}
-	f, err = parser.ParseFile(t.fset, filePath, nil, parser.ParseComments)
-	if err != nil {
-		err = errors.WithStack(err)
-		return
-	}
-
-	t.fileMap[filePath] = f
 	return
 }
 
