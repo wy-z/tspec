@@ -6,7 +6,6 @@ import (
 	"go/build"
 	"os"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 	"github.com/wy-z/tspec/tspec"
 )
@@ -14,11 +13,6 @@ import (
 type cliOpts struct {
 	PkgPath  string
 	TypeExpr string
-}
-
-func exit(code int, msg string, args ...interface{}) {
-	log.Errorf(msg, args...)
-	os.Exit(code)
 }
 
 func main() {
@@ -51,7 +45,9 @@ func main() {
 
 		wd, err := os.Getwd()
 		if err != nil {
-			exit(1, "failed to get working dir: %s", err)
+			msg := fmt.Sprintf("failed to get working dir: %s", err)
+			err = cli.NewExitError(msg, 1)
+			return
 		}
 		importPkg, err := build.Import(opts.PkgPath, wd, build.ImportComment)
 		if err != nil {
