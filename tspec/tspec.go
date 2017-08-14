@@ -257,6 +257,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 	parseTypeLock.Lock()
 	if tmpSchema, ok := t.typeMap[typeID]; ok {
 		schema = tmpSchema
+		parseTypeLock.Unlock()
 		return
 	}
 	if typeID != "" {
