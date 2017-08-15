@@ -14,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Parser ...
+// Parser defines tspec parser
 type Parser struct {
 	fset       *token.FileSet
 	dirPkgMap  map[string]*ast.Package
@@ -22,7 +22,7 @@ type Parser struct {
 	typeMap    map[string]*spec.Schema
 }
 
-// NewParser ...
+// NewParser returns a new tspec parser
 func NewParser() (parser *Parser) {
 	parser = new(Parser)
 	parser.fset = token.NewFileSet()
@@ -32,7 +32,7 @@ func NewParser() (parser *Parser) {
 	return
 }
 
-// ParseDir ...
+// ParseDir parses the dir and cache it
 func (t *Parser) ParseDir(dirPath string, pkgName string) (pkg *ast.Package, err error) {
 	if tmpPkg, ok := t.dirPkgMap[dirPath]; ok {
 		pkg = tmpPkg
@@ -59,7 +59,7 @@ func (t *Parser) ParseDir(dirPath string, pkgName string) (pkg *ast.Package, err
 	return
 }
 
-// Import ...
+// Import parses import spec and returns related package
 func (t *Parser) Import(ispec *ast.ImportSpec) (pkg *ast.Package, err error) {
 	pkgPath := strings.Trim(ispec.Path.Value, "\"")
 
@@ -82,7 +82,7 @@ func (t *Parser) Import(ispec *ast.ImportSpec) (pkg *ast.Package, err error) {
 	return
 }
 
-// ParsePkg ...
+// ParsePkg collects all objs and cache them
 func (t *Parser) ParsePkg(pkg *ast.Package) (objs map[string]*ast.Object, err error) {
 	if tmpObjs, ok := t.pkgObjsMap[pkg]; ok {
 		objs = tmpObjs
@@ -391,7 +391,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 	return
 }
 
-// Parse ...
+// Parse parses type expr and returns related json schema
 func (t *Parser) Parse(oPkg *ast.Package, typeStr string) (
 	schema *spec.Schema, err error) {
 	pkg, obj, err := t.parseTypeStr(oPkg, typeStr)
@@ -412,7 +412,7 @@ func (t *Parser) Parse(oPkg *ast.Package, typeStr string) (
 	return
 }
 
-// Definitions ...
+// Definitions returns all related definitions
 func (t *Parser) Definitions() (defs spec.Definitions) {
 	defs = make(spec.Definitions)
 	for k, v := range t.typeMap {
