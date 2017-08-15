@@ -288,9 +288,11 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 				}
 
 				var fTypeID, fTypeTitle string
-				if _, isAnonymousStruct := starExprX(field.Type).(*ast.StructType); isAnonymousStruct {
+				switch starExprX(field.Type).(type) {
+				case *ast.StructType, *ast.ArrayType, *ast.MapType:
 					fTypeTitle = typeTitle + "_" + fieldName
 					fTypeID = pkg.Name + "." + fTypeTitle
+
 				}
 				prop, e := t.parseTypeRef(pkg, field.Type, fTypeTitle, fTypeID)
 				if e != nil {
@@ -339,14 +341,24 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 			}
 		}
 	case *ast.ArrayType:
-		itemsSchema, e := t.parseTypeRef(pkg, typ.Elt, "", "")
+		var eltTitle, eltID string
+		if _, isAnonymousStruct := starExprX(typ.Elt).(*ast.StructType); isAnonymousStruct {
+			eltTitle = typeTitle + "_Elt"
+			eltID = pkg.Name + "." + eltTitle
+		}
+		itemsSchema, e := t.parseTypeRef(pkg, typ.Elt, eltTitle, eltID)
 		if e != nil {
 			err = errors.WithStack(e)
 			return
 		}
 		schema = spec.ArrayProperty(itemsSchema)
 	case *ast.MapType:
-		valueSchema, e := t.parseTypeRef(pkg, typ.Value, "", "")
+		var eltTitle, eltID string
+		if _, isAnonymousStruct := starExprX(typ.Value).(*ast.StructType); isAnonymousStruct {
+			eltTitle = typeTitle + "_Elt"
+			eltID = pkg.Name + "." + eltTitle
+		}
+		valueSchema, e := t.parseTypeRef(pkg, typ.Value, eltTitle, eltID)
 		if e != nil {
 			err = errors.WithStack(e)
 			return
