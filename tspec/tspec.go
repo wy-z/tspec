@@ -234,6 +234,32 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle, typeID
 			}
 			return
 		}
+	case *ast.ArrayType:
+		var eltTitle, eltID string
+		if _, isAnonymousStruct := starExprX(typ.Elt).(*ast.StructType); isAnonymousStruct {
+			eltTitle = typeTitle + "_Elt"
+			eltID = pkg.Name + "." + eltTitle
+		}
+		itemsSchema, e := t.parseTypeRef(pkg, typ.Elt, eltTitle, eltID)
+		if e != nil {
+			err = errors.WithStack(e)
+			return
+		}
+		schema = spec.ArrayProperty(itemsSchema)
+		return
+	case *ast.MapType:
+		var eltTitle, eltID string
+		if _, isAnonymousStruct := starExprX(typ.Value).(*ast.StructType); isAnonymousStruct {
+			eltTitle = typeTitle + "_Elt"
+			eltID = pkg.Name + "." + eltTitle
+		}
+		valueSchema, e := t.parseTypeRef(pkg, typ.Value, eltTitle, eltID)
+		if e != nil {
+			err = errors.WithStack(e)
+			return
+		}
+		schema = spec.MapProperty(valueSchema)
+		return
 	}
 	return t.parseType(pkg, typeExpr, typeTitle, typeID)
 }
@@ -340,30 +366,12 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 				}
 			}
 		}
-	case *ast.ArrayType:
-		var eltTitle, eltID string
-		if _, isAnonymousStruct := starExprX(typ.Elt).(*ast.StructType); isAnonymousStruct {
-			eltTitle = typeTitle + "_Elt"
-			eltID = pkg.Name + "." + eltTitle
-		}
-		itemsSchema, e := t.parseTypeRef(pkg, typ.Elt, eltTitle, eltID)
-		if e != nil {
-			err = errors.WithStack(e)
+	case *ast.ArrayType, *ast.MapType:
+		schema, err = t.parseTypeRef(pkg, typ, typeTitle, typeID)
+		if err != nil {
+			err = errors.WithStack(err)
 			return
 		}
-		schema = spec.ArrayProperty(itemsSchema)
-	case *ast.MapType:
-		var eltTitle, eltID string
-		if _, isAnonymousStruct := starExprX(typ.Value).(*ast.StructType); isAnonymousStruct {
-			eltTitle = typeTitle + "_Elt"
-			eltID = pkg.Name + "." + eltTitle
-		}
-		valueSchema, e := t.parseTypeRef(pkg, typ.Value, eltTitle, eltID)
-		if e != nil {
-			err = errors.WithStack(e)
-			return
-		}
-		schema = spec.MapProperty(valueSchema)
 	case *ast.SelectorExpr:
 		typeStr, e := selectorExprTypeStr(typ)
 		if e != nil {
