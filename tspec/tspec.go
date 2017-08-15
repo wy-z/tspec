@@ -6,6 +6,7 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"reflect"
 	"strings"
 	"sync"
 
@@ -271,6 +272,21 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 		for _, field := range typ.Fields.List {
 			if len(field.Names) != 0 {
 				fieldName := field.Names[0].Name
+				jName := fieldName
+				if !ast.IsExported(fieldName) {
+					continue
+				}
+				tags := parseFieldTag(field)
+				if tags["json"] == "-" {
+					continue
+				}
+				if len(tags["json"]) > 0 {
+					jName = strings.TrimSpace(strings.Split(tags["json"], ",")[0])
+				}
+				if tags["required"] == "true" {
+					schema.AddRequired(jName)
+				}
+
 				var fTypeID, fTypeTitle string
 				if _, isAnonymousStruct := starExprX(field.Type).(*ast.StructType); isAnonymousStruct {
 					fTypeTitle = typeTitle + "_" + fieldName
@@ -281,7 +297,8 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 					err = errors.WithStack(e)
 					return
 				}
-				schema.SetProperty(fieldName, *prop)
+				prop.WithDescription(tags["description"])
+				schema.SetProperty(jName, *prop)
 			} else {
 				// inherited struct
 				var fieldTypeTitle, fieldTypeID string
@@ -427,6 +444,20 @@ func selectorExprTypeStr(expr *ast.SelectorExpr) (typeStr string, err error) {
 		return
 	}
 	typeStr = xIdent.Name + "." + expr.Sel.Name
+	return
+}
+
+var fieldTagList = []string{"json", "required", "description"}
+
+func parseFieldTag(field *ast.Field) (tags map[string]string) {
+	if field.Tag == nil {
+		return
+	}
+	tags = make(map[string]string)
+	stag := reflect.StructTag(strings.Trim(field.Tag.Value, "`"))
+	for _, k := range fieldTagList {
+		tags[k] = stag.Get(k)
+	}
 	return
 }
 
