@@ -10,6 +10,9 @@ import (
 	"github.com/wy-z/tspec/tspec"
 )
 
+// Version defines tspec version
+const Version = "0.0.1"
+
 type cliOpts struct {
 	PkgPath  string
 	TypeExpr string
@@ -18,19 +21,20 @@ type cliOpts struct {
 func main() {
 	app := cli.NewApp()
 	app.Name = "TSpec"
+	app.Version = Version
 	app.Usage = "Parse golang data structure into json schema."
 
 	opts := new(cliOpts)
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:        "package, p",
-			Usage:       "package dir",
+			Usage:       "package dir `PKG`",
 			Value:       ".",
 			Destination: &opts.PkgPath,
 		},
 		cli.StringFlag{
 			Name:        "expression, expr",
-			Usage:       "type expression",
+			Usage:       "type expression `EXPR`",
 			Destination: &opts.TypeExpr,
 		},
 	}
