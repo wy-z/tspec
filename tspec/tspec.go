@@ -328,7 +328,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 				prop.WithDescription(tags["description"])
 				schema.SetProperty(jName, *prop)
 			} else {
-				// inherited struct
+				// inheritance
 				var fieldTypeTitle, fieldTypeID string
 				ident, isIdent := starExprX(field.Type).(*ast.Ident)
 				fieldExpr, e := t.parseIdentExpr(field.Type, pkg)
@@ -353,17 +353,13 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 						fieldTypeTitle = typeStr
 					}
 				}
-				inheritedSchema, e := t.parseType(pkg, field.Type, fieldTypeTitle,
+				inheritedSchema, e := t.parseTypeRef(pkg, field.Type, fieldTypeTitle,
 					fieldTypeID)
 				if e != nil {
 					err = errors.WithStack(e)
 					return
 				}
-				for propKey, propSchema := range inheritedSchema.Properties {
-					if _, ok := schema.Properties[propKey]; !ok {
-						schema.SetProperty(propKey, propSchema)
-					}
-				}
+				schema.AddToAllOf(*inheritedSchema)
 			}
 		}
 	case *ast.ArrayType, *ast.MapType:
