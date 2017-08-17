@@ -58,3 +58,9 @@ type F struct {
 type G struct {
 	*C
 }
+
+// H H ...
+type H struct {
+	*C     `json:"c"`
+	String string
+}

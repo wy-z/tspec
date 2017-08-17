@@ -298,19 +298,12 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 		for _, field := range typ.Fields.List {
 			if len(field.Names) != 0 {
 				fieldName := field.Names[0].Name
-				jName := fieldName
 				if !ast.IsExported(fieldName) {
 					continue
 				}
 				tags := parseFieldTag(field)
 				if tags["json"] == "-" {
 					continue
-				}
-				if len(tags["json"]) > 0 {
-					jName = strings.TrimSpace(strings.Split(tags["json"], ",")[0])
-				}
-				if tags["required"] == "true" {
-					schema.AddRequired(jName)
 				}
 
 				var fTypeID, fTypeTitle string
@@ -325,10 +318,22 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 					err = errors.WithStack(e)
 					return
 				}
+
+				jName := fieldName
+				if len(tags["json"]) > 0 {
+					jName = strings.TrimSpace(strings.Split(tags["json"], ",")[0])
+				}
+				if tags["required"] == "true" {
+					schema.AddRequired(jName)
+				}
 				prop.WithDescription(tags["description"])
 				schema.SetProperty(jName, *prop)
 			} else {
-				// inheritance
+				tags := parseFieldTag(field)
+				if tags["json"] == "-" {
+					continue
+				}
+
 				var fieldTypeTitle, fieldTypeID string
 				ident, isIdent := starExprX(field.Type).(*ast.Ident)
 				fieldExpr, e := t.parseIdentExpr(field.Type, pkg)
@@ -353,13 +358,24 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 						fieldTypeTitle = fieldTyp.Sel.Name
 					}
 				}
-				inheritedSchema, e := t.parseTypeRef(pkg, field.Type, fieldTypeTitle,
+				prop, e := t.parseTypeRef(pkg, field.Type, fieldTypeTitle,
 					fieldTypeID)
 				if e != nil {
 					err = errors.WithStack(e)
 					return
 				}
-				schema.AddToAllOf(*inheritedSchema)
+				
+				if len(tags["json"]) > 0 {
+					jName := strings.TrimSpace(strings.Split(tags["json"], ",")[0])
+					if tags["required"] == "true" {
+						schema.AddRequired(jName)
+						prop.WithDescription(tags["description"])
+					}
+					schema.SetProperty(jName, *prop)
+				} else {
+					// inheritance
+					schema.AddToAllOf(*prop)
+				}
 			}
 		}
 	case *ast.ArrayType, *ast.MapType:
