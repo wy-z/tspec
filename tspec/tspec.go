@@ -350,7 +350,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 					}
 					if typeStr != "time.Time" {
 						fieldTypeID = typeStr
-						fieldTypeTitle = typeStr
+						fieldTypeTitle = fieldTyp.Sel.Name
 					}
 				}
 				inheritedSchema, e := t.parseTypeRef(pkg, field.Type, fieldTypeTitle,
