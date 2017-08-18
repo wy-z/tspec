@@ -197,7 +197,7 @@ func (t *Parser) parseIdentExpr(oExpr ast.Expr, pkg *ast.Package) (expr ast.Expr
 	return
 }
 
-func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle, typeID string) (
+func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle string) (
 	schema *spec.Schema, err error) {
 	ident, isIdent := starExprX(expr).(*ast.Ident)
 	typeExpr, err := t.parseIdentExpr(expr, pkg)
@@ -208,11 +208,10 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle, typeID
 	switch typ := typeExpr.(type) {
 	case *ast.StructType:
 		if isIdent {
-			typeID = pkg.Name + "." + ident.Name
 			typeTitle = ident.Name
 		}
-		schema = spec.RefProperty("#/definitions/" + typeID)
-		_, err = t.parseType(pkg, typ, typeTitle, typeID)
+		schema = spec.RefProperty("#/definitions/" + typeTitle)
+		_, err = t.parseType(pkg, typ, typeTitle)
 		if err != nil {
 			err = errors.WithStack(err)
 			return
@@ -225,8 +224,8 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle, typeID
 			return
 		}
 		if typeStr != "time.Time" {
-			typeID := typeStr
-			schema = spec.RefProperty("#/definitions/" + typeID)
+			typeTitle := typ.Sel.Name
+			schema = spec.RefProperty("#/definitions/" + typeTitle)
 			_, err = t.Parse(pkg, typeStr)
 			if err != nil {
 				err = errors.WithStack(err)
@@ -235,12 +234,11 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle, typeID
 			return
 		}
 	case *ast.ArrayType:
-		var eltTitle, eltID string
+		var eltTitle string
 		if _, isAnonymousStruct := starExprX(typ.Elt).(*ast.StructType); isAnonymousStruct {
 			eltTitle = typeTitle + "_Elt"
-			eltID = pkg.Name + "." + eltTitle
 		}
-		itemsSchema, e := t.parseTypeRef(pkg, typ.Elt, eltTitle, eltID)
+		itemsSchema, e := t.parseTypeRef(pkg, typ.Elt, eltTitle)
 		if e != nil {
 			err = errors.WithStack(e)
 			return
@@ -248,12 +246,11 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle, typeID
 		schema = spec.ArrayProperty(itemsSchema)
 		return
 	case *ast.MapType:
-		var eltTitle, eltID string
+		var eltTitle string
 		if _, isAnonymousStruct := starExprX(typ.Value).(*ast.StructType); isAnonymousStruct {
 			eltTitle = typeTitle + "_Elt"
-			eltID = pkg.Name + "." + eltTitle
 		}
-		valueSchema, e := t.parseTypeRef(pkg, typ.Value, eltTitle, eltID)
+		valueSchema, e := t.parseTypeRef(pkg, typ.Value, eltTitle)
 		if e != nil {
 			err = errors.WithStack(e)
 			return
@@ -261,21 +258,21 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle, typeID
 		schema = spec.MapProperty(valueSchema)
 		return
 	}
-	return t.parseType(pkg, typeExpr, typeTitle, typeID)
+	return t.parseType(pkg, typeExpr, typeTitle)
 }
 
 var parseTypeLock sync.Mutex
 
-func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID string) (schema *spec.Schema,
+func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (schema *spec.Schema,
 	err error) {
 	parseTypeLock.Lock()
-	if tmpSchema, ok := t.typeMap[typeID]; ok {
+	if tmpSchema, ok := t.typeMap[typeTitle]; ok {
 		schema = tmpSchema
 		parseTypeLock.Unlock()
 		return
 	}
-	if typeID != "" {
-		t.typeMap[typeID] = nil
+	if typeTitle != "" {
+		t.typeMap[typeTitle] = nil
 	}
 	parseTypeLock.Unlock()
 
@@ -287,7 +284,6 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 	}
 
 	schema = new(spec.Schema)
-	schema.WithID(typeID)
 	schema.WithTitle(typeTitle)
 	switch typ := expr.(type) {
 	case *ast.StructType:
@@ -306,14 +302,12 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 					continue
 				}
 
-				var fTypeID, fTypeTitle string
+				var fTypeTitle string
 				switch starExprX(field.Type).(type) {
 				case *ast.StructType, *ast.ArrayType, *ast.MapType:
 					fTypeTitle = typeTitle + "_" + fieldName
-					fTypeID = pkg.Name + "." + fTypeTitle
-
 				}
-				prop, e := t.parseTypeRef(pkg, field.Type, fTypeTitle, fTypeID)
+				prop, e := t.parseTypeRef(pkg, field.Type, fTypeTitle)
 				if e != nil {
 					err = errors.WithStack(e)
 					return
@@ -334,7 +328,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 					continue
 				}
 
-				var fieldTypeTitle, fieldTypeID string
+				var fieldTypeTitle string
 				ident, isIdent := starExprX(field.Type).(*ast.Ident)
 				fieldExpr, e := t.parseIdentExpr(field.Type, pkg)
 				if e != nil {
@@ -344,7 +338,6 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 				switch fieldTyp := fieldExpr.(type) {
 				case *ast.StructType:
 					if isIdent {
-						fieldTypeID = pkg.Name + "." + ident.Name
 						fieldTypeTitle = ident.Name
 					}
 				case *ast.SelectorExpr:
@@ -354,17 +347,15 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 						return
 					}
 					if typeStr != "time.Time" {
-						fieldTypeID = typeStr
 						fieldTypeTitle = fieldTyp.Sel.Name
 					}
 				}
-				prop, e := t.parseTypeRef(pkg, field.Type, fieldTypeTitle,
-					fieldTypeID)
+				prop, e := t.parseTypeRef(pkg, field.Type, fieldTypeTitle)
 				if e != nil {
 					err = errors.WithStack(e)
 					return
 				}
-				
+
 				if len(tags["json"]) > 0 {
 					jName := strings.TrimSpace(strings.Split(tags["json"], ",")[0])
 					if tags["required"] == "true" {
@@ -379,7 +370,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 			}
 		}
 	case *ast.ArrayType, *ast.MapType:
-		schema, err = t.parseTypeRef(pkg, typ, typeTitle, typeID)
+		schema, err = t.parseTypeRef(pkg, typ, typeTitle)
 		if err != nil {
 			err = errors.WithStack(err)
 			return
@@ -417,8 +408,8 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle, typeID st
 		return
 	}
 
-	if typeID != "" {
-		t.typeMap[typeID] = schema
+	if typeTitle != "" {
+		t.typeMap[typeTitle] = schema
 	}
 	return
 }
@@ -436,7 +427,7 @@ func (t *Parser) Parse(oPkg *ast.Package, typeStr string) (
 		err = errors.WithStack(err)
 		return
 	}
-	schema, err = t.parseType(pkg, ts.Type, obj.Name, pkg.Name+"."+obj.Name)
+	schema, err = t.parseType(pkg, ts.Type, obj.Name)
 	if err != nil {
 		err = errors.WithStack(err)
 		return
