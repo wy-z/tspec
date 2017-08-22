@@ -448,6 +448,12 @@ func (t *Parser) Definitions() (defs spec.Definitions) {
 	return
 }
 
+// Reset cleans all definitions
+func (t *Parser) Reset() {
+	t.typeMap = make(map[string]*spec.Schema)
+	return
+}
+
 func starExprX(expr ast.Expr) ast.Expr {
 	if star, ok := expr.(*ast.StarExpr); ok {
 		return star.X
