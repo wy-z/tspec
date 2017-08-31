@@ -4,82 +4,102 @@
 		"title": "BasicTypes",
 		"properties": {
 			"bool_field": {
-				"type": "boolean"
+				"type": "boolean",
+				"title": "BoolField"
 			},
 			"byte_field": {
 				"type": "string",
-				"format": "byte"
+				"format": "byte",
+				"title": "ByteField"
 			},
 			"complex128_field": {
 				"type": "number",
-				"format": "double"
+				"format": "double",
+				"title": "Complex128Field"
 			},
 			"complex64_field": {
 				"type": "number",
-				"format": "float"
+				"format": "float",
+				"title": "Complex64Field"
 			},
 			"float32_field": {
 				"type": "number",
-				"format": "float32"
+				"format": "float32",
+				"title": "Float32Field"
 			},
 			"float64_field": {
 				"type": "number",
-				"format": "float64"
+				"format": "float64",
+				"title": "Float64Field"
 			},
 			"int16_field": {
 				"type": "integer",
-				"format": "int16"
+				"format": "int16",
+				"title": "Int16Field"
 			},
 			"int32_field": {
 				"type": "integer",
-				"format": "int32"
+				"format": "int32",
+				"title": "Int32Field"
 			},
 			"int64_field": {
 				"type": "integer",
-				"format": "int64"
+				"format": "int64",
+				"title": "Int64Field"
 			},
 			"int8_field": {
 				"type": "integer",
-				"format": "int8"
+				"format": "int8",
+				"title": "Int8Field"
 			},
 			"int_field": {
 				"type": "integer",
-				"format": "int"
+				"format": "int",
+				"title": "IntField"
 			},
 			"rune_field": {
 				"type": "string",
-				"format": "byte"
+				"format": "byte",
+				"title": "RuneField"
 			},
 			"string_field": {
-				"type": "string"
+				"type": "string",
+				"title": "StringField"
 			},
 			"time_field": {
 				"type": "string",
-				"format": "date-time"
+				"format": "date-time",
+				"title": "TimeField"
 			},
 			"uint16_field": {
 				"type": "integer",
-				"format": "uint16"
+				"format": "uint16",
+				"title": "Uint16Field"
 			},
 			"uint32_field": {
 				"type": "integer",
-				"format": "uint32"
+				"format": "uint32",
+				"title": "Uint32Field"
 			},
 			"uint64_field": {
 				"type": "integer",
-				"format": "uint64"
+				"format": "uint64",
+				"title": "Uint64Field"
 			},
 			"uint8_field": {
 				"type": "integer",
-				"format": "uint8"
+				"format": "uint8",
+				"title": "Uint8Field"
 			},
 			"uint_field": {
 				"type": "integer",
-				"format": "uint"
+				"format": "uint",
+				"title": "UintField"
 			},
 			"uintptr_field": {
 				"type": "integer",
-				"format": "int64"
+				"format": "int64",
+				"title": "UintptrField"
 			}
 		}
 	},
@@ -88,15 +108,18 @@
 		"title": "NormalStruct",
 		"properties": {
 			"basic_types": {
+				"title": "BasicTypes",
 				"$ref": "#/definitions/BasicTypes"
 			},
 			"create": {
 				"type": "string",
-				"format": "date-time"
+				"format": "date-time",
+				"title": "Create"
 			},
 			"number": {
 				"type": "integer",
-				"format": "int"
+				"format": "int",
+				"title": "Number"
 			}
 		}
 	},
@@ -105,6 +128,7 @@
 		"title": "StructWithCircularReference",
 		"properties": {
 			"circular_reference": {
+				"title": "CircularReference",
 				"$ref": "#/definitions/StructWithCircularReference"
 			}
 		}

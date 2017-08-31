@@ -4,6 +4,7 @@
 		"title": "StructWithCircularReference",
 		"properties": {
 			"circular_reference": {
+				"title": "CircularReference",
 				"$ref": "#/definitions/StructWithCircularReference"
 			}
 		}
