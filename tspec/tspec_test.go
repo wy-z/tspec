@@ -41,7 +41,8 @@ func (s *TSpecTestSuite) testParse(typeStr, assert string) {
 	defs := s.parser.Definitions()
 	bts, err := json.MarshalIndent(defs, "", "\t")
 	require.NoError(err)
-	require.Equal(bytes.TrimSpace(samples.MustAsset(assert)), bytes.TrimSpace(bts))
+	require.Equal(string(bytes.TrimSpace(samples.MustAsset(assert))),
+		string(bytes.TrimSpace(bts)))
 	s.parser.Reset()
 }
 
