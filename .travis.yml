@@ -1,4 +1,4 @@
 language: go
 go:
   - stable
-script: go test -v ./tspec
+script: cd ./tspec && go vet && go test -v
