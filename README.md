@@ -35,17 +35,19 @@ GLOBAL OPTIONS:
 
 ## QuickStart
 
-type_samples.go
-
 ```
-package tspec_test
+package main
 
 import (
     "github.com/wy-z/tspec/samples"
 )
+
+func main() {
+    _ = new(samples.NormalStruct)
+}
 ```
 
-run ```tspec NormalStruct```
+run ```tspec samples.NormalStruct```
 
 ## Samples
 
