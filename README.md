@@ -1,4 +1,6 @@
 # tspec
+[![Build Status](https://travis-ci.org/wy-z/tspec.svg?branch=master)](https://travis-ci.org/wy-z/tspec) [![GoDoc](https://godoc.org/github.com/wy-z/tspec?status.svg)](http://godoc.org/github.com/wy-z/tspec)
+
 Parse golang data structure into json schema.
 
 ## Installation
