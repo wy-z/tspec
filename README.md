@@ -21,7 +21,7 @@ USAGE:
    tspec [global options] command [command options] [arguments...]
 
 VERSION:
-   1.2.0
+   1.3.0
 
 COMMANDS:
      help, h  Shows a list of commands or help for one command
@@ -35,17 +35,19 @@ GLOBAL OPTIONS:
 
 ## QuickStart
 
-type_samples.go
-
 ```
-package tspec_test
+package main
 
 import (
     "github.com/wy-z/tspec/samples"
 )
+
+func main() {
+    _ = new(samples.NormalStruct)
+}
 ```
 
-run ```tspec NormalStruct```
+run ```tspec samples.NormalStruct```
 
 ## Samples
 

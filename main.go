@@ -11,7 +11,7 @@ import (
 )
 
 // Version defines tspec version
-const Version = "1.2.0"
+const Version = "1.3.0"
 
 type cliOpts struct {
 	PkgPath  string
