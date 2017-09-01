@@ -50,3 +50,11 @@ run ```tspec NormalStruct```
 ## Samples
 
 see `github.com/wy-z/tspec/samples`
+
+## Test
+
+```
+go get github.com/jteeuwen/go-bindata
+go-bindata -o samples/samples.go  -pkg samples samples/source
+go test -v ./tspec
+```
