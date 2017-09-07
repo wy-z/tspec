@@ -3,7 +3,7 @@
 		"type": "object",
 		"additionalProperties": {
 			"type": "integer",
-			"format": "int"
+			"format": "int64"
 		}
 	}
 }
