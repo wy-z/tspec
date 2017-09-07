@@ -3,7 +3,7 @@
 		"type": "array",
 		"items": {
 			"type": "integer",
-			"format": "int"
+			"format": "int64"
 		}
 	}
 }

@@ -24,17 +24,17 @@
 			},
 			"float32_field": {
 				"type": "number",
-				"format": "float32",
+				"format": "float",
 				"title": "Float32Field"
 			},
 			"float64_field": {
 				"type": "number",
-				"format": "float64",
+				"format": "double",
 				"title": "Float64Field"
 			},
 			"int16_field": {
 				"type": "integer",
-				"format": "int16",
+				"format": "int32",
 				"title": "Int16Field"
 			},
 			"int32_field": {
@@ -49,12 +49,12 @@
 			},
 			"int8_field": {
 				"type": "integer",
-				"format": "int8",
+				"format": "int32",
 				"title": "Int8Field"
 			},
 			"int_field": {
 				"type": "integer",
-				"format": "int",
+				"format": "int64",
 				"title": "IntField"
 			},
 			"rune_field": {
@@ -73,27 +73,27 @@
 			},
 			"uint16_field": {
 				"type": "integer",
-				"format": "uint16",
+				"format": "int32",
 				"title": "Uint16Field"
 			},
 			"uint32_field": {
 				"type": "integer",
-				"format": "uint32",
+				"format": "int32",
 				"title": "Uint32Field"
 			},
 			"uint64_field": {
 				"type": "integer",
-				"format": "uint64",
+				"format": "int64",
 				"title": "Uint64Field"
 			},
 			"uint8_field": {
 				"type": "integer",
-				"format": "uint8",
+				"format": "int32",
 				"title": "Uint8Field"
 			},
 			"uint_field": {
 				"type": "integer",
-				"format": "uint",
+				"format": "int64",
 				"title": "UintField"
 			},
 			"uintptr_field": {

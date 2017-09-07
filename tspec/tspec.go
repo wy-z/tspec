@@ -497,12 +497,12 @@ func parseFieldTag(field *ast.Field) (tags map[string]string) {
 
 var basicTypes = map[string]string{
 	"bool": "boolean:",
-	"uint": "integer:uint", "uint8": "integer:uint8", "uint16": "integer:uint16",
-	"uint32": "integer:uint32", "uint64": "integer:uint64",
-	"int": "integer:int", "int8": "integer:int8", "int16": "integer:int16",
+	"uint": "integer:int64", "uint8": "integer:int32", "uint16": "integer:int32",
+	"uint32": "integer:int32", "uint64": "integer:int64",
+	"int": "integer:int64", "int8": "integer:int32", "int16": "integer:int32",
 	"int32": "integer:int32", "int64": "integer:int64",
 	"uintptr": "integer:int64",
-	"float32": "number:float32", "float64": "number:float64",
+	"float32": "number:float", "float64": "number:double",
 	"string":    "string",
 	"complex64": "number:float", "complex128": "number:double",
 	"byte": "string:byte", "rune": "string:byte", "time": "string:date-time",
