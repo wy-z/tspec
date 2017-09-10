@@ -9,7 +9,7 @@ go get github.com/wy-z/tspec
 ```
 Or
 ```
-import "github.com/wy-z/tspec/tspec" # see main.go
+import "github.com/wy-z/tspec/tspec" # see cli/cli.go
 ```
 
 ## Usage
@@ -51,12 +51,11 @@ run ```tspec samples.NormalStruct```
 
 ## Samples
 
-see `github.com/wy-z/tspec/samples`
+see `github.com/wy-z/tspec/samples/source`
 
 ## Test
 
 ```
-go get github.com/jteeuwen/go-bindata
-go-bindata -o samples/samples.go  -pkg samples samples/source
-go test -v ./tspec
+go get -u github.com/jteeuwen/go-bindata/...
+go generate ./samples && go test -v ./tspec
 ```

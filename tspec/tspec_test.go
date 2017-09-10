@@ -47,14 +47,14 @@ func (s *TSpecTestSuite) testParse(typeStr, assert string) {
 }
 
 func (s *TSpecTestSuite) TestParse() {
-	s.testParse("BasicTypes", "samples/source/basic_types.json")
-	s.testParse("NormalStruct", "samples/source/normal_struct.json")
-	s.testParse("StructWithNoExportField", "samples/source/struct_with_no_export_field.json")
-	s.testParse("StructWithAnonymousField", "samples/source/struct_with_anonymous_field.json")
-	s.testParse("StructWithCircularReference", "samples/source/struct_with_circular_reference.json")
-	s.testParse("StructWithInheritance", "samples/source/struct_with_inheritance.json")
-	s.testParse("MapType", "samples/source/map_type.json")
-	s.testParse("ArrayType", "samples/source/array_type.json")
+	s.testParse("BasicTypes", "source/basic_types.json")
+	s.testParse("NormalStruct", "source/normal_struct.json")
+	s.testParse("StructWithNoExportField", "source/struct_with_no_export_field.json")
+	s.testParse("StructWithAnonymousField", "source/struct_with_anonymous_field.json")
+	s.testParse("StructWithCircularReference", "source/struct_with_circular_reference.json")
+	s.testParse("StructWithInheritance", "source/struct_with_inheritance.json")
+	s.testParse("MapType", "source/map_type.json")
+	s.testParse("ArrayType", "source/array_type.json")
 }
 
 func (s *TSpecTestSuite) TestParseInvalidMap() {
