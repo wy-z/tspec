@@ -1,5 +1,5 @@
 # tspec
-[![Build Status](https://travis-ci.org/wy-z/tspec.svg?branch=master)](https://travis-ci.org/wy-z/tspec) [![GoDoc](https://godoc.org/github.com/wy-z/tspec?status.svg)](http://godoc.org/github.com/wy-z/tspec)
+[![Build Status](https://travis-ci.org/wy-z/tspec.svg?branch=master)](https://travis-ci.org/wy-z/tspec) [![GoDoc](https://godoc.org/github.com/wy-z/tspec?status.svg)](http://godoc.org/github.com/wy-z/tspec) [![Go Report Card](https://goreportcard.com/badge/github.com/wy-z/tspec)](https://goreportcard.com/report/github.com/wy-z/tspec)
 
 Parse golang data structure into json schema.
 
