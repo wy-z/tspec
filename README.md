@@ -1,5 +1,5 @@
 # tspec
-[![Build Status](https://travis-ci.org/wy-z/tspec.svg?branch=master)](https://travis-ci.org/wy-z/tspec) [![GoDoc](https://godoc.org/github.com/wy-z/tspec?status.svg)](http://godoc.org/github.com/wy-z/tspec)
+[![Build Status](https://travis-ci.org/wy-z/tspec.svg?branch=master)](https://travis-ci.org/wy-z/tspec) [![GoDoc](https://godoc.org/github.com/wy-z/tspec?status.svg)](http://godoc.org/github.com/wy-z/tspec) [![Go Report Card](https://goreportcard.com/badge/github.com/wy-z/tspec)](https://goreportcard.com/report/github.com/wy-z/tspec)
 
 Parse golang data structure into json schema.
 
@@ -21,7 +21,7 @@ USAGE:
    tspec [global options] command [command options] [arguments...]
 
 VERSION:
-   1.6.0
+   1.7.0
 
 COMMANDS:
      help, h  Shows a list of commands or help for one command
