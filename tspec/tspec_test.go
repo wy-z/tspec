@@ -7,6 +7,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -73,7 +74,8 @@ import (
     "github.com/wy-z/tspec/samples"
 )
 `, parser.ImportsOnly)
-	pkg, err := tspec.NewParser().Import(f.Imports[0])
+	pkgPath := strings.Trim(f.Imports[0].Path.Value, "\"")
+	pkg, err := tspec.NewParser().Import(pkgPath)
 	if err != nil {
 		msg := fmt.Sprintf("failed to import 'github.com/wy-z/tspec/samples': %s", err)
 		panic(msg)

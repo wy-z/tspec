@@ -59,10 +59,8 @@ func (t *Parser) ParseDir(dirPath string, pkgName string) (pkg *ast.Package, err
 	return
 }
 
-// Import parses import spec and returns related package
-func (t *Parser) Import(ispec *ast.ImportSpec) (pkg *ast.Package, err error) {
-	pkgPath := strings.Trim(ispec.Path.Value, "\"")
-
+// Import imports package dir and returns related package
+func (t *Parser) Import(pkgPath string) (pkg *ast.Package, err error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		err = errors.WithStack(err)
@@ -137,7 +135,8 @@ func (t *Parser) parseTypeStr(oPkg *ast.Package, typeStr string) (pkg *ast.Packa
 	var p *ast.Package
 	for _, file := range oPkg.Files {
 		for _, ispec := range file.Imports {
-			p, err = t.Import(ispec)
+			pkgPath := strings.Trim(ispec.Path.Value, "\"")
+			p, err = t.Import(pkgPath)
 			if err != nil {
 				err = errors.WithStack(err)
 				return

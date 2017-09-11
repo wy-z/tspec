@@ -3,7 +3,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"go/build"
 	"os"
 
 	"github.com/urfave/cli"
@@ -45,22 +44,10 @@ func Run(version string) {
 			return
 		}
 
-		wd, err := os.Getwd()
-		if err != nil {
-			msg := fmt.Sprintf("failed to get working dir: %s", err)
-			err = cli.NewExitError(msg, 1)
-			return
-		}
-		importPkg, err := build.Import(opts.PkgPath, wd, build.ImportComment)
-		if err != nil {
-			msg := fmt.Sprintf("failed to import pkg %s: %s", opts.PkgPath, err)
-			err = cli.NewExitError(msg, 1)
-			return
-		}
 		parser := tspec.NewParser()
-		pkg, err := parser.ParseDir(opts.PkgPath, importPkg.Name)
+		pkg, err := parser.Import(opts.PkgPath)
 		if err != nil {
-			msg := fmt.Sprintf("failed to parse pkg %s: %s", opts.PkgPath, err)
+			msg := fmt.Sprintf("failed to import pkg %s: %s", pkg.Name, err)
 			err = cli.NewExitError(msg, 1)
 			return
 		}
