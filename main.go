@@ -4,7 +4,7 @@ import (
 	"github.com/wy-z/tspec/cli"
 )
 
-const version = "1.9.0"
+const version = "1.9.1"
 
 func main() {
 	cli.Run(version)
