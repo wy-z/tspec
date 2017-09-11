@@ -26,6 +26,7 @@ type Parser struct {
 	pkgObjsMap map[*ast.Package]map[string]*ast.Object
 	typeMap    map[string]*spec.Schema
 	refPrefix  string
+	lock       sync.Mutex
 }
 
 // NewParser returns a new tspec parser
@@ -279,20 +280,18 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle string)
 	return t.parseType(pkg, typeExpr, typeTitle)
 }
 
-var parseTypeLock sync.Mutex
-
 func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (schema *spec.Schema,
 	err error) {
-	parseTypeLock.Lock()
+	t.lock.Lock()
 	if tmpSchema, ok := t.typeMap[typeTitle]; ok {
 		schema = tmpSchema
-		parseTypeLock.Unlock()
+		t.lock.Unlock()
 		return
 	}
 	if typeTitle != "" {
 		t.typeMap[typeTitle] = nil
 	}
-	parseTypeLock.Unlock()
+	t.lock.Unlock()
 
 	// parse ident expr
 	expr, err = t.parseIdentExpr(expr, pkg)
