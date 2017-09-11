@@ -10,8 +10,9 @@ import (
 )
 
 type cliOpts struct {
-	PkgPath  string
-	TypeExpr string
+	PkgPath   string
+	TypeExpr  string
+	RefPrefix string
 }
 
 //Run runs tspec
@@ -34,6 +35,12 @@ func Run(version string) {
 			Usage:       "type expression `EXPR`",
 			Destination: &opts.TypeExpr,
 		},
+		cli.StringFlag{
+			Name:        "ref-prefix, rp",
+			Usage:       "the prefix of ref url `EXPR`",
+			Value:       tspec.DefaultRefPrefix,
+			Destination: &opts.RefPrefix,
+		},
 	}
 	app.Action = func(c *cli.Context) (err error) {
 		if c.NArg() > 0 {
@@ -45,6 +52,7 @@ func Run(version string) {
 		}
 
 		parser := tspec.NewParser()
+		parser.RefPrefix(opts.RefPrefix)
 		pkg, err := parser.Import(opts.PkgPath)
 		if err != nil {
 			msg := fmt.Sprintf("failed to import pkg %s: %s", pkg.Name, err)
