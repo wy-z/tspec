@@ -27,11 +27,11 @@ COMMANDS:
      help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --package PKG, -p PKG           package dir PKG (default: ".")
-   --expression EXPR, --expr EXPR  type expression EXPR
-   --ref-prefix EXPR, --rp EXPR    the prefix of ref url EXPR (default: "#/definitions/")
-   --help, -h                      show help
-   --version, -v                   print the version
+   --package PKG, -p PKG             package dir PKG (default: ".")
+   --expression EXPR, --expr EXPR    type expression EXPR
+   --ref-prefix PREFIX, --rp PREFIX  the prefix of ref url PREFIX (default: "#/definitions/")
+   --help, -h                        show help
+   --version, -v                     print the version
 ```
 
 ## QuickStart

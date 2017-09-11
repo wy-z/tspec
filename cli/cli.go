@@ -37,7 +37,7 @@ func Run(version string) {
 		},
 		cli.StringFlag{
 			Name:        "ref-prefix, rp",
-			Usage:       "the prefix of ref url `EXPR`",
+			Usage:       "the prefix of ref url `PREFIX`",
 			Value:       tspec.DefaultRefPrefix,
 			Destination: &opts.RefPrefix,
 		},
