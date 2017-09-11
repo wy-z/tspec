@@ -14,12 +14,18 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	// DefaultRefPrefix defines the default value of ref prefix
+	DefaultRefPrefix = "#/definitions/"
+)
+
 // Parser defines tspec parser
 type Parser struct {
 	fset       *token.FileSet
 	dirPkgMap  map[string]*ast.Package
 	pkgObjsMap map[*ast.Package]map[string]*ast.Object
 	typeMap    map[string]*spec.Schema
+	refPrefix  string
 }
 
 // NewParser returns a new tspec parser
@@ -29,7 +35,16 @@ func NewParser() (parser *Parser) {
 	parser.dirPkgMap = make(map[string]*ast.Package)
 	parser.pkgObjsMap = make(map[*ast.Package]map[string]*ast.Object)
 	parser.typeMap = make(map[string]*spec.Schema)
+	parser.refPrefix = DefaultRefPrefix
 	return
+}
+
+// RefPrefix gets or sets the prefix of ref url
+func (t *Parser) RefPrefix(prefix ...string) string {
+	if len(prefix) != 0 {
+		t.refPrefix = prefix[0]
+	}
+	return t.refPrefix
 }
 
 // ParseDir parses the dir and cache it
@@ -209,7 +224,7 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle string)
 		if isIdent {
 			typeTitle = ident.Name
 		}
-		schema = spec.RefProperty("#/definitions/" + typeTitle)
+		schema = spec.RefProperty(t.refPrefix + typeTitle)
 		_, err = t.parseType(pkg, typ, typeTitle)
 		if err != nil {
 			err = errors.WithStack(err)
@@ -224,7 +239,7 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle string)
 		}
 		if typeStr != "time.Time" {
 			typeTitle := typ.Sel.Name
-			schema = spec.RefProperty("#/definitions/" + typeTitle)
+			schema = spec.RefProperty(t.refPrefix + typeTitle)
 			_, err = t.Parse(pkg, typeStr)
 			if err != nil {
 				err = errors.WithStack(err)
