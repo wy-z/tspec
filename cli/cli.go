@@ -10,9 +10,10 @@ import (
 )
 
 type cliOpts struct {
-	PkgPath   string
-	TypeExpr  string
-	RefPrefix string
+	PkgPath       string
+	TypeExpr      string
+	RefPrefix     string
+	IgnoreJSONTag bool
 }
 
 //Run runs tspec
@@ -41,6 +42,11 @@ func Run(version string) {
 			Value:       tspec.DefaultRefPrefix,
 			Destination: &opts.RefPrefix,
 		},
+		cli.BoolFlag{
+			Name:        "ignore-json-tag",
+			Usage:       "ignore json tag",
+			Destination: &opts.IgnoreJSONTag,
+		},
 	}
 	app.Action = func(c *cli.Context) (err error) {
 		if c.NArg() > 0 {
@@ -52,7 +58,13 @@ func Run(version string) {
 		}
 
 		parser := tspec.NewParser()
-		parser.RefPrefix(opts.RefPrefix)
+		parserOpts := tspec.DefaultParserOptions
+		if opts.RefPrefix != "" {
+			parserOpts.RefPrefix = opts.RefPrefix
+		}
+		parserOpts.IgnoreJSONTag = opts.IgnoreJSONTag
+		parser.Options(parserOpts)
+
 		pkg, err := parser.Import(opts.PkgPath)
 		if err != nil {
 			msg := fmt.Sprintf("failed to import pkg %s: %s", pkg.Name, err)
