@@ -349,7 +349,6 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 				if tags["required"] == "true" {
 					schema.AddRequired(jName)
 				}
-				prop.WithTitle(fieldName)
 				prop.WithDescription(tags["description"])
 				schema.SetProperty(jName, *prop)
 			} else {
