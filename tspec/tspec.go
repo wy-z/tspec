@@ -19,13 +19,25 @@ const (
 	DefaultRefPrefix = "#/definitions/"
 )
 
+// ParserOptions defines tspec parser options
+type ParserOptions struct {
+	IgnoreJSONTag bool
+	RefPrefix     string
+}
+
+// DefaultParserOptions defines default tspec parser options
+var DefaultParserOptions = ParserOptions{
+	IgnoreJSONTag: false,
+	RefPrefix:     DefaultRefPrefix,
+}
+
 // Parser defines tspec parser
 type Parser struct {
 	fset       *token.FileSet
 	dirPkgMap  map[string]*ast.Package
 	pkgObjsMap map[*ast.Package]map[string]*ast.Object
 	typeMap    map[string]*spec.Schema
-	refPrefix  string
+	opts       ParserOptions
 	lock       sync.Mutex
 }
 
@@ -36,16 +48,16 @@ func NewParser() (parser *Parser) {
 	parser.dirPkgMap = make(map[string]*ast.Package)
 	parser.pkgObjsMap = make(map[*ast.Package]map[string]*ast.Object)
 	parser.typeMap = make(map[string]*spec.Schema)
-	parser.refPrefix = DefaultRefPrefix
+	parser.opts = DefaultParserOptions
 	return
 }
 
-// RefPrefix gets or sets the prefix of ref url
-func (t *Parser) RefPrefix(prefix ...string) string {
-	if len(prefix) != 0 {
-		t.refPrefix = prefix[0]
+// Options gets or sets parser options
+func (t *Parser) Options(opts ...ParserOptions) ParserOptions {
+	if len(opts) != 0 {
+		t.opts = opts[0]
 	}
-	return t.refPrefix
+	return t.opts
 }
 
 // ParseDir parses the dir and cache it
@@ -225,7 +237,7 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle string)
 		if isIdent {
 			typeTitle = ident.Name
 		}
-		schema = spec.RefProperty(t.refPrefix + typeTitle)
+		schema = spec.RefProperty(t.opts.RefPrefix + typeTitle)
 		_, err = t.parseType(pkg, typ, typeTitle)
 		if err != nil {
 			err = errors.WithStack(err)
@@ -240,7 +252,7 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle string)
 		}
 		if typeStr != "time.Time" {
 			typeTitle := typ.Sel.Name
-			schema = spec.RefProperty(t.refPrefix + typeTitle)
+			schema = spec.RefProperty(t.opts.RefPrefix + typeTitle)
 			_, err = t.Parse(pkg, typeStr)
 			if err != nil {
 				err = errors.WithStack(err)
@@ -315,7 +327,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 					continue
 				}
 				tags := parseFieldTag(field)
-				if tags["json"] == "-" {
+				if !t.opts.IgnoreJSONTag && tags["json"] == "-" {
 					continue
 				}
 
@@ -331,18 +343,17 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 				}
 
 				jName := fieldName
-				if len(tags["json"]) > 0 {
+				if !t.opts.IgnoreJSONTag && len(tags["json"]) > 0 {
 					jName = strings.TrimSpace(strings.Split(tags["json"], ",")[0])
 				}
 				if tags["required"] == "true" {
 					schema.AddRequired(jName)
 				}
-				prop.WithTitle(fieldName)
 				prop.WithDescription(tags["description"])
 				schema.SetProperty(jName, *prop)
 			} else {
 				tags := parseFieldTag(field)
-				if tags["json"] == "-" {
+				if !t.opts.IgnoreJSONTag && tags["json"] == "-" {
 					continue
 				}
 
@@ -374,7 +385,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 					return
 				}
 
-				if len(tags["json"]) > 0 {
+				if !t.opts.IgnoreJSONTag && len(tags["json"]) > 0 {
 					jName := strings.TrimSpace(strings.Split(tags["json"], ",")[0])
 					if tags["required"] == "true" {
 						schema.AddRequired(jName)

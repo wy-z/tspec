@@ -5,9 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/ast"
-	"go/parser"
-	"go/token"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -67,15 +64,7 @@ func (s *TSpecTestSuite) TestParseInvalidMap() {
 }
 
 func init() {
-	fset := token.NewFileSet()
-	f, _ := parser.ParseFile(fset, "tspec_test.go", `
-package tspec_test
-import (
-    "github.com/wy-z/tspec/samples"
-)
-`, parser.ImportsOnly)
-	pkgPath := strings.Trim(f.Imports[0].Path.Value, "\"")
-	pkg, err := tspec.NewParser().Import(pkgPath)
+	pkg, err := tspec.NewParser().Import("github.com/wy-z/tspec/samples")
 	if err != nil {
 		msg := fmt.Sprintf("failed to import 'github.com/wy-z/tspec/samples': %s", err)
 		panic(msg)

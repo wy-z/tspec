@@ -30,6 +30,7 @@ GLOBAL OPTIONS:
    --package PKG, -p PKG             package dir PKG (default: ".")
    --expression EXPR, --expr EXPR    type expression EXPR
    --ref-prefix PREFIX, --rp PREFIX  the prefix of ref url PREFIX (default: "#/definitions/")
+   --ignore-json-tag                 ignore json tag
    --help, -h                        show help
    --version, -v                     print the version
 ```
