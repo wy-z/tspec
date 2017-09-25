@@ -4,102 +4,82 @@
 		"title": "BasicTypes",
 		"properties": {
 			"bool_field": {
-				"type": "boolean",
-				"title": "BoolField"
+				"type": "boolean"
 			},
 			"byte_field": {
 				"type": "string",
-				"format": "byte",
-				"title": "ByteField"
+				"format": "byte"
 			},
 			"complex128_field": {
 				"type": "number",
-				"format": "double",
-				"title": "Complex128Field"
+				"format": "double"
 			},
 			"complex64_field": {
 				"type": "number",
-				"format": "float",
-				"title": "Complex64Field"
+				"format": "float"
 			},
 			"float32_field": {
 				"type": "number",
-				"format": "float",
-				"title": "Float32Field"
+				"format": "float"
 			},
 			"float64_field": {
 				"type": "number",
-				"format": "double",
-				"title": "Float64Field"
+				"format": "double"
 			},
 			"int16_field": {
 				"type": "integer",
-				"format": "int32",
-				"title": "Int16Field"
+				"format": "int32"
 			},
 			"int32_field": {
 				"type": "integer",
-				"format": "int32",
-				"title": "Int32Field"
+				"format": "int32"
 			},
 			"int64_field": {
 				"type": "integer",
-				"format": "int64",
-				"title": "Int64Field"
+				"format": "int64"
 			},
 			"int8_field": {
 				"type": "integer",
-				"format": "int32",
-				"title": "Int8Field"
+				"format": "int32"
 			},
 			"int_field": {
 				"type": "integer",
-				"format": "int64",
-				"title": "IntField"
+				"format": "int64"
 			},
 			"rune_field": {
 				"type": "string",
-				"format": "byte",
-				"title": "RuneField"
+				"format": "byte"
 			},
 			"string_field": {
-				"type": "string",
-				"title": "StringField"
+				"type": "string"
 			},
 			"time_field": {
 				"type": "string",
-				"format": "date-time",
-				"title": "TimeField"
+				"format": "date-time"
 			},
 			"uint16_field": {
 				"type": "integer",
-				"format": "int32",
-				"title": "Uint16Field"
+				"format": "int32"
 			},
 			"uint32_field": {
 				"type": "integer",
-				"format": "int32",
-				"title": "Uint32Field"
+				"format": "int32"
 			},
 			"uint64_field": {
 				"type": "integer",
-				"format": "int64",
-				"title": "Uint64Field"
+				"format": "int64"
 			},
 			"uint8_field": {
 				"type": "integer",
-				"format": "int32",
-				"title": "Uint8Field"
+				"format": "int32"
 			},
 			"uint_field": {
 				"type": "integer",
-				"format": "int64",
-				"title": "UintField"
+				"format": "int64"
 			},
 			"uintptr_field": {
 				"type": "integer",
-				"format": "int64",
-				"title": "UintptrField"
+				"format": "int64"
 			}
 		}
 	}
