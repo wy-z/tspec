@@ -44,8 +44,8 @@ func Run(version string) {
 			Destination: &opts.RefPrefix,
 		},
 		cli.BoolFlag{
-			Name:        "ignore-json-tag",
-			Usage:       "ignore json tag (default: false)",
+			Name:        "ignore-json-tag, igt",
+			Usage:       "ignore json tag",
 			Destination: &opts.IgnoreJSONTag,
 		},
 	}

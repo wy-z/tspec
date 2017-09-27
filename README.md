@@ -30,7 +30,7 @@ GLOBAL OPTIONS:
    --package PKG, -p PKG               package path or url, e.g. 'github.com/wy-z/tspec' PKG (default: ".")
    --expressions EXPRS, --exprs EXPRS  (required) type expressions, seperated by ',', EXPRS
    --ref-prefix PREFIX, --rp PREFIX    the prefix of ref url PREFIX (default: "#/definitions/")
-   --ignore-json-tag                   ignore json tag (default: false)
+   --ignore-json-tag, --igt            ignore json tag
    --help, -h                          show help
    --version, -v                       print the version
 ```
