@@ -27,29 +27,19 @@ COMMANDS:
      help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --package PKG, -p PKG             package dir PKG (default: ".")
-   --expression EXPR, --expr EXPR    type expression EXPR
-   --ref-prefix PREFIX, --rp PREFIX  the prefix of ref url PREFIX (default: "#/definitions/")
-   --ignore-json-tag                 ignore json tag
-   --help, -h                        show help
-   --version, -v                     print the version
+   --package PKG, -p PKG               package path or url, e.g. 'github.com/wy-z/tspec' PKG (default: ".")
+   --expressions EXPRS, --exprs EXPRS  (required) type expressions, seperated by ',', EXPRS
+   --ref-prefix PREFIX, --rp PREFIX    the prefix of ref url PREFIX (default: "#/definitions/")
+   --ignore-json-tag                   ignore json tag (default: false)
+   --help, -h                          show help
+   --version, -v                       print the version
 ```
 
 ## QuickStart
 
-```
-package main
-
-import (
-    "github.com/wy-z/tspec/samples"
-)
-
-func main() {
-    _ = new(samples.NormalStruct)
-}
-```
-
-run ```tspec samples.NormalStruct```
+`tspec -p github.com/wy-z/tspec/samples -exprs BasicTypes,NormalStruct`
+Or
+`tspec -p github.com/wy-z/tspec/samples  BasicTypes NormalStruct`
 
 ## Samples
 

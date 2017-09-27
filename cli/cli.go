@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/urfave/cli"
 	"github.com/wy-z/tspec/tspec"
@@ -11,7 +12,7 @@ import (
 
 type cliOpts struct {
 	PkgPath       string
-	TypeExpr      string
+	TypeExprs     string
 	RefPrefix     string
 	IgnoreJSONTag bool
 }
@@ -27,14 +28,14 @@ func Run(version string) {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:        "package, p",
-			Usage:       "package dir `PKG`",
+			Usage:       "package path or url, e.g. 'github.com/wy-z/tspec' `PKG`",
 			Value:       ".",
 			Destination: &opts.PkgPath,
 		},
 		cli.StringFlag{
-			Name:        "expression, expr",
-			Usage:       "type expression `EXPR`",
-			Destination: &opts.TypeExpr,
+			Name:        "expressions, exprs",
+			Usage:       "(required) type expressions, seperated by ',', `EXPRS`",
+			Destination: &opts.TypeExprs,
 		},
 		cli.StringFlag{
 			Name:        "ref-prefix, rp",
@@ -44,15 +45,15 @@ func Run(version string) {
 		},
 		cli.BoolFlag{
 			Name:        "ignore-json-tag",
-			Usage:       "ignore json tag",
+			Usage:       "ignore json tag (default: false)",
 			Destination: &opts.IgnoreJSONTag,
 		},
 	}
 	app.Action = func(c *cli.Context) (err error) {
 		if c.NArg() > 0 {
-			opts.TypeExpr = c.Args().Get(0)
+			opts.TypeExprs = strings.Join(c.Args(), ",")
 		}
-		if opts.TypeExpr == "" {
+		if opts.TypeExprs == "" {
 			cli.ShowAppHelp(c)
 			return
 		}
@@ -67,16 +68,21 @@ func Run(version string) {
 
 		pkg, err := parser.Import(opts.PkgPath)
 		if err != nil {
-			msg := fmt.Sprintf("failed to import pkg %s: %s", pkg.Name, err)
+			msg := fmt.Sprintf("failed to import pkg '%s': %s", opts.PkgPath, err)
 			err = cli.NewExitError(msg, 1)
 			return
 		}
-		_, err = parser.Parse(pkg, opts.TypeExpr)
-		if err != nil {
-			msg := fmt.Sprintf("failed to parse type expr %s: %s", opts.TypeExpr, err)
-			err = cli.NewExitError(msg, 1)
-			return
+
+		for _, expr := range strings.Split(opts.TypeExprs, ",") {
+			expr = strings.TrimSpace(expr)
+			_, err = parser.Parse(pkg, expr)
+			if err != nil {
+				msg := fmt.Sprintf("failed to parse type expr %s: %s", opts.TypeExprs, err)
+				err = cli.NewExitError(msg, 1)
+				return
+			}
 		}
+
 		defs := parser.Definitions()
 		bytes, err := json.MarshalIndent(defs, "", "\t")
 		if err != nil {
