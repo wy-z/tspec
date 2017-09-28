@@ -15,6 +15,7 @@ type cliOpts struct {
 	TypeExprs     string
 	RefPrefix     string
 	IgnoreJSONTag bool
+	Decorator     string
 }
 
 //Run runs tspec
@@ -28,14 +29,19 @@ func Run(version string) {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:        "package, p",
-			Usage:       "package path or url, e.g. 'github.com/wy-z/tspec' `PKG`",
+			Usage:       "package path `PKG`",
 			Value:       ".",
 			Destination: &opts.PkgPath,
 		},
 		cli.StringFlag{
 			Name:        "expressions, exprs",
-			Usage:       "(required) type expressions, seperated by ',', `EXPRS`",
+			Usage:       "(any-of required) type expressions, seperated by ',' `EXPRS`",
 			Destination: &opts.TypeExprs,
+		},
+		cli.StringFlag{
+			Name:        "decorator, d",
+			Usage:       "(any-of required) parse package with decorator `DECORATOR`",
+			Destination: &opts.Decorator,
 		},
 		cli.StringFlag{
 			Name:        "ref-prefix, rp",
@@ -53,7 +59,7 @@ func Run(version string) {
 		if c.NArg() > 0 {
 			opts.TypeExprs = strings.Join(c.Args(), ",")
 		}
-		if opts.TypeExprs == "" {
+		if opts.TypeExprs == "" && opts.Decorator == "" {
 			cli.ShowAppHelp(c)
 			return
 		}
@@ -73,8 +79,27 @@ func Run(version string) {
 			return
 		}
 
+		exprs := make([]string, 0, 2)
 		for _, expr := range strings.Split(opts.TypeExprs, ",") {
 			expr = strings.TrimSpace(expr)
+			if expr == "" {
+				continue
+			}
+			exprs = append(exprs, expr)
+		}
+		if opts.Decorator != "" {
+			objs, e := tspec.ParsePkgWithDecorator(pkg, opts.Decorator)
+			if e != nil {
+				msg := fmt.Sprintf("failed to parse pkg with decorator, %s", e)
+				err = cli.NewExitError(msg, 1)
+				return
+			}
+			for k := range objs {
+				exprs = append(exprs, k)
+			}
+		}
+
+		for _, expr := range exprs {
 			_, err = parser.Parse(pkg, expr)
 			if err != nil {
 				msg := fmt.Sprintf("failed to parse type expr %s: %s", opts.TypeExprs, err)
