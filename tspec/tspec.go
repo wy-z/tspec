@@ -20,6 +20,8 @@ import (
 const (
 	// DefaultRefPrefix defines the default value of ref prefix
 	DefaultRefPrefix = "#/definitions/"
+
+	timeTypeStr = "time.Time"
 )
 
 // ParserOptions defines tspec parser options
@@ -233,6 +235,162 @@ func (t *Parser) parseIdentExpr(oExpr ast.Expr, pkg *ast.Package) (expr ast.Expr
 	return
 }
 
+func (t *Parser) parseNestviewTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle string) (
+	schema *spec.Schema, err error) {
+	ident, isIdent := starExprX(expr).(*ast.Ident)
+	typeExpr, err := t.parseIdentExpr(expr, pkg)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	switch typ := typeExpr.(type) {
+	case *ast.StructType:
+		if isIdent {
+			typeTitle = ident.Name
+		}
+		typeTitle = typeTitle + "_Nestview"
+
+		schema = spec.RefProperty(t.opts.RefPrefix + typeTitle)
+		_, err = t.parseNestviewType(pkg, typ, typeTitle)
+		if err != nil {
+			err = errors.WithStack(err)
+			return
+		}
+	case *ast.ArrayType:
+		var eltTitle string
+		if _, isAnonymousStruct := starExprX(typ.Elt).(*ast.StructType); isAnonymousStruct {
+			eltTitle = typeTitle + "_Elt"
+		}
+		eltTitle = eltTitle + "_Nestview"
+
+		itemsSchema, e := t.parseNestviewTypeRef(pkg, typ.Elt, eltTitle)
+		if e != nil {
+			err = errors.WithStack(e)
+			return
+		}
+		schema = spec.ArrayProperty(itemsSchema)
+		return
+	default:
+		err = errors.Errorf("invalid nested type %T", typ)
+		return
+	}
+	return
+}
+
+func (t *Parser) parseNestviewType(pkg *ast.Package, expr ast.Expr, typeTitle string) (
+	schema *spec.Schema, err error) {
+	t.lock.Lock()
+	if tmpSchema, ok := t.typeMap[typeTitle]; ok {
+		schema = tmpSchema
+		t.lock.Unlock()
+		return
+	}
+	if typeTitle != "" {
+		t.typeMap[typeTitle] = nil
+	}
+	t.lock.Unlock()
+
+	// parse ident expr
+	expr, err = t.parseIdentExpr(expr, pkg)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+
+	switch typ := expr.(type) {
+	case *ast.StructType:
+		schema = new(spec.Schema)
+		schema.WithTitle(typeTitle)
+		schema.Typed("object", "")
+		for _, field := range typ.Fields.List {
+			if len(field.Names) != 0 {
+				fieldName := field.Names[0].Name
+				if !ast.IsExported(fieldName) {
+					continue
+				}
+				tags := parseFieldTag(field)
+				if !t.opts.IgnoreJSONTag && tags["json"] == "-" {
+					continue
+				}
+				if tags["view"] != "nested" {
+					continue
+				}
+
+				prop, e := t.parseType(pkg, field.Type, "")
+				if e != nil {
+					err = errors.WithStack(e)
+					return
+				}
+				if prop == nil {
+					err = errors.Errorf("invalid nested field:\n%#v", field)
+					return
+				}
+
+				jName := fieldName
+				if !t.opts.IgnoreJSONTag && len(tags["json"]) > 0 {
+					jName = strings.TrimSpace(strings.Split(tags["json"], ",")[0])
+				}
+				if tags["required"] == "true" {
+					schema.AddRequired(jName)
+				}
+				prop.WithDescription(tags["description"])
+				schema.SetProperty(jName, *prop)
+			} else {
+				err = errors.Errorf("invalid nested field:\n%#v", field)
+				return
+			}
+		}
+	case *ast.SelectorExpr:
+		typeStr, e := selectorExprTypeStr(typ)
+		if e != nil {
+			err = errors.WithStack(err)
+			return
+		}
+		if typeStr == timeTypeStr {
+			typeType, typeFormat, e := parseBasicType("time")
+			if e != nil {
+				err = errors.WithStack(e)
+				return
+			}
+			schema.Typed(typeType, typeFormat)
+		} else {
+			schema, err = t.parseNestview(pkg, typeStr)
+			if err != nil {
+				err = errors.WithStack(err)
+				return
+			}
+		}
+	default:
+		err = errors.Errorf("invalid nested type %T", typ)
+		return
+	}
+
+	if typeTitle != "" {
+		t.typeMap[typeTitle] = schema
+	}
+	return
+}
+
+func (t *Parser) parseNestview(oPkg *ast.Package, typeStr string) (
+	schema *spec.Schema, err error) {
+	pkg, obj, err := t.parseTypeStr(oPkg, typeStr)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	ts, err := objDeclTypeSpec(obj)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	schema, err = t.parseNestviewType(pkg, ts.Type, obj.Name)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	return
+}
+
 func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle string) (
 	schema *spec.Schema, err error) {
 	ident, isIdent := starExprX(expr).(*ast.Ident)
@@ -259,7 +417,7 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle string)
 			err = errors.WithStack(err)
 			return
 		}
-		if typeStr != "time.Time" {
+		if typeStr != timeTypeStr {
 			typeTitle := typ.Sel.Name
 			schema = spec.RefProperty(t.opts.RefPrefix + typeTitle)
 			_, err = t.Parse(pkg, typeStr)
@@ -348,10 +506,20 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 				case *ast.StructType, *ast.ArrayType, *ast.MapType:
 					fTypeTitle = typeTitle + "_" + fieldName
 				}
-				prop, e := t.parseTypeRef(pkg, field.Type, fTypeTitle)
-				if e != nil {
-					err = errors.WithStack(e)
-					return
+
+				var prop *spec.Schema
+				if !t.opts.IgnoreJSONTag && tags["view"] == "nestview" {
+					prop, err = t.parseNestviewTypeRef(pkg, field.Type, fTypeTitle)
+					if err != nil {
+						err = errors.WithStack(err)
+						return
+					}
+				} else {
+					prop, err = t.parseTypeRef(pkg, field.Type, fTypeTitle)
+					if err != nil {
+						err = errors.WithStack(err)
+						return
+					}
 				}
 
 				jName := fieldName
@@ -387,7 +555,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 						err = errors.WithStack(err)
 						return
 					}
-					if typeStr != "time.Time" {
+					if typeStr != timeTypeStr {
 						fieldTypeTitle = fieldTyp.Sel.Name
 					}
 				}
@@ -422,7 +590,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 			err = errors.WithStack(err)
 			return
 		}
-		if typeStr == "time.Time" {
+		if typeStr == timeTypeStr {
 			typeType, typeFormat, e := parseBasicType("time")
 			if e != nil {
 				err = errors.WithStack(e)
@@ -527,7 +695,7 @@ func selectorExprTypeStr(expr *ast.SelectorExpr) (typeStr string, err error) {
 	return
 }
 
-var fieldTagList = []string{"json", "required"}
+var fieldTagList = []string{"json", "required", "view"}
 
 func parseFieldTag(field *ast.Field) (tags map[string]string) {
 	if field.Tag == nil {
