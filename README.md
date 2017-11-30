@@ -5,11 +5,11 @@ Parse golang data structure into json schema.
 
 ## Installation
 ```
-go get github.com/wy-z/tspec
+go get github.com/wy-z/tspec/...
 ```
 Or
 ```
-import "github.com/wy-z/tspec/tspec" # see cli/cli.go
+import "github.com/wy-z/tspec/tspec" # see cmd/tspec/cli.go
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ USAGE:
    tspec [global options] command [command options] [arguments...]
 
 VERSION:
-   2.1.2
+   2.2.0
 
 COMMANDS:
      help, h  Shows a list of commands or help for one command
