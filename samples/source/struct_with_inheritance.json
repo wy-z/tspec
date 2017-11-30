@@ -115,12 +115,14 @@
 		"allOf": [
 			{
 				"$ref": "#/definitions/StructWithCircularReference"
+			},
+			{
+				"properties": {
+					"normal_struct": {
+						"$ref": "#/definitions/NormalStruct"
+					}
+				}
 			}
-		],
-		"properties": {
-			"normal_struct": {
-				"$ref": "#/definitions/NormalStruct"
-			}
-		}
+		]
 	}
 }

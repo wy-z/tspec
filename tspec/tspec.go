@@ -436,6 +436,13 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 		err = errors.Errorf("invalid expr type %T", typ)
 		return
 	}
+	// combine schemas
+	if len(schema.AllOf) != 0 && len(schema.Properties) != 0 {
+		newSchema := spec.Schema{}
+		newSchema.Properties = schema.Properties
+		schema.AddToAllOf(newSchema)
+		schema.Properties = nil
+	}
 
 	if typeTitle != "" {
 		t.typeMap[typeTitle] = schema
