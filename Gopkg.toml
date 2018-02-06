@@ -22,17 +22,17 @@
 
 
 [[constraint]]
-  branch = "master"
   name = "github.com/go-openapi/spec"
+  revision = "f3499b5df53897321d6f5e9c22cf19309d41d3bc"
 
-[[constraint]]
+[[override]]
   name = "github.com/pkg/errors"
   version = "0.8.0"
 
-[[constraint]]
+[[override]]
   name = "github.com/stretchr/testify"
   version = "1.2.0"
 
-[[constraint]]
+[[override]]
   name = "github.com/urfave/cli"
   version = "1.20.0"
