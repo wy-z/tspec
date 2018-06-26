@@ -23,7 +23,12 @@ type BasicTypes struct {
 	Complex128Field complex128 `json:"complex128_field"`
 	ByteField       byte       `json:"byte_field"`
 	RuneField       rune       `json:"rune_field"`
-	TimeField       time.Time  `json:"time_field"`
+
+	// This is a
+	// time field.
+	//
+	// New line.
+	TimeField time.Time `json:"time_field"`
 }
 
 // NormalStruct defines normal struct
