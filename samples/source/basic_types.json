@@ -1,5 +1,6 @@
 {
 	"BasicTypes": {
+		"description": "BasicTypes defines basic types",
 		"type": "object",
 		"title": "BasicTypes",
 		"properties": {
@@ -54,6 +55,7 @@
 				"type": "string"
 			},
 			"time_field": {
+				"description": "This is a time field.\n\nNew line.",
 				"type": "string",
 				"format": "date-time"
 			},

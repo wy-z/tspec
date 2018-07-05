@@ -1,5 +1,6 @@
 {
 	"StructWithNoExportField": {
+		"description": "StructWithNoExportField defines struct with no export field",
 		"type": "object",
 		"title": "StructWithNoExportField"
 	}
