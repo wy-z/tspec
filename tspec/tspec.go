@@ -333,7 +333,7 @@ func (t *Parser) parseNestviewType(pkg *ast.Package, expr ast.Expr, typeTitle st
 				if tags["required"] == "true" {
 					schema.AddRequired(jName)
 				}
-				prop.WithDescription(tags["description"])
+				prop.WithDescription(docToText(field.Doc.Text()))
 				schema.SetProperty(jName, *prop)
 			} else {
 				err = errors.Errorf("invalid nested field:\n%#v", field)
