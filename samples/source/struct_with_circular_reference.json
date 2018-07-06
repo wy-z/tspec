@@ -1,6 +1,5 @@
 {
 	"StructWithCircularReference": {
-		"description": "StructWithCircularReference defines struct with circular reference",
 		"type": "object",
 		"title": "StructWithCircularReference",
 		"properties": {

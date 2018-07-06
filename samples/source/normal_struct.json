@@ -1,6 +1,5 @@
 {
 	"BasicTypes": {
-		"description": "BasicTypes defines basic types",
 		"type": "object",
 		"title": "BasicTypes",
 		"properties": {
@@ -86,7 +85,6 @@
 		}
 	},
 	"NormalStruct": {
-		"description": "NormalStruct defines normal struct",
 		"type": "object",
 		"title": "NormalStruct",
 		"properties": {

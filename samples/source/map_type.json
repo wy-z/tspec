@@ -1,6 +1,5 @@
 {
 	"MapType": {
-		"description": "MapType defines map type",
 		"type": "object",
 		"additionalProperties": {
 			"type": "integer",

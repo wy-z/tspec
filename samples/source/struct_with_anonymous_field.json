@@ -1,6 +1,5 @@
 {
 	"StructWithAnonymousField": {
-		"description": "StructWithAnonymousField defines struct with anonymous field",
 		"type": "object",
 		"title": "StructWithAnonymousField",
 		"properties": {

@@ -1,6 +1,5 @@
 {
 	"BasicTypes": {
-		"description": "BasicTypes defines basic types",
 		"type": "object",
 		"title": "BasicTypes",
 		"properties": {

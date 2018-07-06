@@ -1,6 +1,5 @@
 {
 	"ArrayType": {
-		"description": "ArrayType defines array type",
 		"type": "array",
 		"items": {
 			"type": "integer",
