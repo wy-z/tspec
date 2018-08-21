@@ -502,6 +502,12 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 						err = errors.WithStack(err)
 						return
 					}
+				} else if jsonType := tags["json_type"]; jsonType != "" {
+					prop = parseXMSJSONType(jsonType)
+					if prop == nil {
+						err = errors.Errorf("invalid xms json type '%s'", jsonType)
+						return
+					}
 				} else {
 					prop, err = t.parseTypeRef(pkg, field.Type, fTypeTitle)
 					if err != nil {
@@ -680,7 +686,7 @@ func selectorExprTypeStr(expr *ast.SelectorExpr) (typeStr string, err error) {
 	return
 }
 
-var fieldTagList = []string{"json", "required", "view", "description"}
+var fieldTagList = []string{"json", "required", "view", "description", "json_type"}
 
 func parseFieldTag(field *ast.Field) (tags map[string]string) {
 	if field.Tag == nil {
@@ -719,4 +725,22 @@ func parseBasicType(typeTitle string) (typ, format string, err error) {
 		format = exprs[1]
 	}
 	return
+}
+
+// xms json types: object, array_object, array_string
+func parseXMSJSONType(jsonType string) (schema *spec.Schema) {
+	schema = new(spec.Schema)
+	switch jsonType {
+	case "object":
+		schema.Typed("object", "")
+	case "array_object":
+		schema.Typed("object", "")
+		schema = spec.ArrayProperty(schema)
+	case "array_string":
+		schema.Typed("string", "")
+		schema = spec.ArrayProperty(schema)
+	default:
+		schema = nil
+	}
+	return schema
 }
