@@ -1,8 +1,10 @@
 package tspec
 
 import (
+	"bytes"
 	"go/ast"
 	"go/build"
+	"go/doc"
 	"go/parser"
 	"go/token"
 	"os"
@@ -123,7 +125,6 @@ func (t *Parser) ParsePkg(pkg *ast.Package) (objs map[string]*ast.Object, err er
 			}
 		}
 	}
-
 	t.pkgObjsMap[pkg] = objs
 	return
 }
@@ -349,7 +350,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 				if tags["required"] == "true" {
 					schema.AddRequired(jName)
 				}
-				prop.WithDescription(tags["description"])
+				prop.WithDescription(docToText(field.Doc.Text()))
 				schema.SetProperty(jName, *prop)
 			} else {
 				tags := parseFieldTag(field)
@@ -389,7 +390,7 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 					jName := strings.TrimSpace(strings.Split(tags["json"], ",")[0])
 					if tags["required"] == "true" {
 						schema.AddRequired(jName)
-						prop.WithDescription(tags["description"])
+						prop.WithDescription(docToText(field.Doc.Text()))
 					}
 					schema.SetProperty(jName, *prop)
 				} else {
@@ -512,7 +513,7 @@ func selectorExprTypeStr(expr *ast.SelectorExpr) (typeStr string, err error) {
 	return
 }
 
-var fieldTagList = []string{"json", "required", "description"}
+var fieldTagList = []string{"json", "required"}
 
 func parseFieldTag(field *ast.Field) (tags map[string]string) {
 	if field.Tag == nil {
@@ -524,6 +525,12 @@ func parseFieldTag(field *ast.Field) (tags map[string]string) {
 		tags[k] = stag.Get(k)
 	}
 	return
+}
+
+func docToText(d string) (text string) {
+	var buf bytes.Buffer
+	doc.ToText(&buf, d, "", "", 80)
+	return strings.TrimSpace(buf.String())
 }
 
 var basicTypes = map[string]string{
