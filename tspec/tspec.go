@@ -2,6 +2,7 @@ package tspec
 
 import (
 	"bytes"
+	"fmt"
 	"go/ast"
 	"go/build"
 	"go/doc"
@@ -275,8 +276,11 @@ func (t *Parser) parseTypeRef(pkg *ast.Package, expr ast.Expr, typeTitle string)
 		return
 	case *ast.MapType:
 		if ident, isIdent := typ.Key.(*ast.Ident); !isIdent || ident.Name != "string" {
-			err = errors.Errorf("the type of map key must be string, got %s", ident.Name)
-			return
+			ts, e := objDeclTypeSpec(ident.Obj)
+			if e != nil || fmt.Sprintf("%v", ts.Type) != "string" {
+				err = errors.Errorf("the type of map key must be string, got %s", ident.Name)
+				return
+			}
 		}
 		var eltTitle string
 		if _, isAnonymousStruct := starExprX(typ.Value).(*ast.StructType); isAnonymousStruct {
