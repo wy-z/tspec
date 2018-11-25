@@ -1,5 +1,6 @@
 {
 	"BasicTypes": {
+		"description": "BasicTypes defines basic types",
 		"type": "object",
 		"title": "BasicTypes",
 		"properties": {
@@ -85,6 +86,7 @@
 		}
 	},
 	"NormalStruct": {
+		"description": "NormalStruct defines normal struct",
 		"type": "object",
 		"title": "NormalStruct",
 		"properties": {
@@ -102,6 +104,7 @@
 		}
 	},
 	"StructWithCircularReference": {
+		"description": "StructWithCircularReference defines struct with circular reference",
 		"type": "object",
 		"title": "StructWithCircularReference",
 		"properties": {
@@ -111,6 +114,7 @@
 		}
 	},
 	"StructWithInheritance": {
+		"description": "StructWithInheritance defines struct with inheritance",
 		"type": "object",
 		"title": "StructWithInheritance",
 		"allOf": [

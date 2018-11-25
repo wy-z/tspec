@@ -40,6 +40,7 @@ type Parser struct {
 	dirPkgMap  map[string]*ast.Package
 	pkgObjsMap map[*ast.Package]map[string]*ast.Object
 	typeMap    map[string]*spec.Schema
+	docTypeMap map[string]*doc.Type
 	opts       ParserOptions
 	lock       sync.Mutex
 }
@@ -51,6 +52,7 @@ func NewParser() (parser *Parser) {
 	parser.dirPkgMap = make(map[string]*ast.Package)
 	parser.pkgObjsMap = make(map[*ast.Package]map[string]*ast.Object)
 	parser.typeMap = make(map[string]*spec.Schema)
+	parser.docTypeMap = make(map[string]*doc.Type)
 	parser.opts = DefaultParserOptions
 	return
 }
@@ -121,12 +123,17 @@ func (t *Parser) ParsePkg(pkg *ast.Package) (objs map[string]*ast.Object, err er
 	objs = make(map[string]*ast.Object)
 	for _, f := range pkg.Files {
 		for key, obj := range f.Scope.Objects {
+
 			if obj.Kind == ast.Typ {
 				objs[key] = obj
 			}
 		}
 	}
 	t.pkgObjsMap[pkg] = objs
+
+	for _, typ := range doc.New(pkg, "", 0).Types {
+		t.docTypeMap[typ.Name] = typ
+	}
 	return
 }
 
@@ -480,6 +487,9 @@ func (t *Parser) Parse(oPkg *ast.Package, typeStr string) (
 func (t *Parser) Definitions() (defs spec.Definitions) {
 	defs = make(spec.Definitions)
 	for k, v := range t.typeMap {
+		if dt, ok := t.docTypeMap[k]; ok {
+			v.WithDescription(docToText(dt.Doc))
+		}
 		defs[k] = *v
 	}
 	return
