@@ -66,10 +66,10 @@ func (t *Parser) Options(opts ...ParserOptions) ParserOptions {
 }
 
 // ParseDir parses the dir and cache it
-func (t *Parser) ParseDir(dirPath string, pkgName string, useCacheOpts ...bool) (pkg *ast.Package, cached bool, err error) {
+func (t *Parser) ParseDir(dirPath string, pkgName string, opts ...bool) (pkg *ast.Package, cached bool, err error) {
 	useCache := true
-	if len(useCacheOpts) > 0 {
-		useCache = useCacheOpts[0]
+	if len(opts) > 0 {
+		useCache = opts[0]
 	}
 	if tmpPkg, ok := t.dirPkgMap[dirPath]; ok && useCache {
 		pkg = tmpPkg
