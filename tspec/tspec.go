@@ -683,6 +683,10 @@ func starExprX(expr ast.Expr) ast.Expr {
 }
 
 func objDeclTypeSpec(obj *ast.Object) (ts *ast.TypeSpec, err error) {
+	if obj == nil {
+		err = errors.Errorf("invalid ast object")
+		return
+	}
 	ts, ok := obj.Decl.(*ast.TypeSpec)
 	if !ok {
 		err = errors.Errorf("invalid object decl, want *ast.TypeSpec, got %T", ts)
