@@ -3,7 +3,6 @@ package tspec_test
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"go/ast"
 	"testing"
 
@@ -11,8 +10,6 @@ import (
 	"github.com/wy-z/tspec/samples"
 	"github.com/wy-z/tspec/tspec"
 )
-
-var samplesPackage *ast.Package
 
 func TestTSpec(t *testing.T) {
 	suite.Run(t, new(TSpecTestSuite))
@@ -25,8 +22,10 @@ type TSpecTestSuite struct {
 }
 
 func (s *TSpecTestSuite) SetupTest() {
+	var err error
 	s.parser = tspec.NewParser()
-	s.pkg = samplesPackage
+	s.pkg, err = s.parser.Import("github.com/wy-z/tspec/samples")
+	s.Require().NoError(err)
 }
 
 func (s *TSpecTestSuite) testParse(typeStr, assert string) {
@@ -61,13 +60,4 @@ func (s *TSpecTestSuite) TestParseInvalidMap() {
 	schema, err := s.parser.Parse(s.pkg, "InvalidMap")
 	require.Error(err)
 	require.Nil(schema)
-}
-
-func init() {
-	pkg, err := tspec.NewParser().Import("github.com/wy-z/tspec/samples")
-	if err != nil {
-		msg := fmt.Sprintf("failed to import 'github.com/wy-z/tspec/samples': %s", err)
-		panic(msg)
-	}
-	samplesPackage = pkg
 }
