@@ -68,9 +68,14 @@ func (t *Parser) Options(opts ...ParserOptions) ParserOptions {
 }
 
 // ParseDir parses the dir and cache it
-func (t *Parser) ParseDir(dirPath string, pkgName string) (pkg *ast.Package, err error) {
-	if tmpPkg, ok := t.dirPkgMap[dirPath]; ok {
+func (t *Parser) ParseDir(dirPath string, pkgName string, useCacheOpts ...bool) (pkg *ast.Package, cached bool, err error) {
+	useCache := true
+	if len(useCacheOpts) > 0 {
+		useCache = useCacheOpts[0]
+	}
+	if tmpPkg, ok := t.dirPkgMap[dirPath]; ok && useCache {
 		pkg = tmpPkg
+		cached = true
 		return
 	}
 
@@ -107,10 +112,22 @@ func (t *Parser) Import(pkgPath string) (pkg *ast.Package, err error) {
 		return
 	}
 
-	pkg, err = t.ParseDir(importPkg.Dir, importPkg.Name)
+	pkg, cached, err := t.ParseDir(importPkg.Dir, importPkg.Name)
 	if err != nil {
 		err = errors.WithStack(err)
 		return
+	}
+	if !cached {
+		// collects comments
+		// doc.New takes ownership of the AST pkg and may edit or overwrite it.
+		docPkg, _, e := t.ParseDir(importPkg.Dir, importPkg.Name, false)
+		if e != nil {
+			err = errors.WithStack(e)
+			return
+		}
+		for _, typ := range doc.New(docPkg, "", 0).Types {
+			t.docTypeMap[typ.Name] = typ
+		}
 	}
 	return
 }
@@ -132,10 +149,6 @@ func (t *Parser) ParsePkg(pkg *ast.Package) (objs map[string]*ast.Object, err er
 		}
 	}
 	t.pkgObjsMap[pkg] = objs
-
-	for _, typ := range doc.New(pkg, "", 0).Types {
-		t.docTypeMap[typ.Name] = typ
-	}
 	return
 }
 
