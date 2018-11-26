@@ -21,7 +21,7 @@ USAGE:
    tspec [global options] command [command options] [arguments...]
 
 VERSION:
-   2.2.4
+   2.2.5
 
 COMMANDS:
      help, h  Shows a list of commands or help for one command
