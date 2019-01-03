@@ -374,7 +374,11 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 				if tags["required"] == "true" {
 					schema.AddRequired(jName)
 				}
-				prop.WithDescription(docToText(field.Doc.Text()))
+				docInstance := field.Doc
+				if docInstance == nil {
+					docInstance = field.Comment
+				}
+				prop.WithDescription(docToText(docInstance.Text()))
 				schema.SetProperty(jName, *prop)
 			} else {
 				tags := parseFieldTag(field)
@@ -414,7 +418,11 @@ func (t *Parser) parseType(pkg *ast.Package, expr ast.Expr, typeTitle string) (s
 					jName := strings.TrimSpace(strings.Split(tags["json"], ",")[0])
 					if tags["required"] == "true" {
 						schema.AddRequired(jName)
-						prop.WithDescription(docToText(field.Doc.Text()))
+						docInstance := field.Doc
+						if docInstance == nil {
+							docInstance = field.Comment
+						}
+						prop.WithDescription(docToText(docInstance.Text()))
 					}
 					schema.SetProperty(jName, *prop)
 				} else {
